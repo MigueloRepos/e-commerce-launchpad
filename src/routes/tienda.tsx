@@ -4,7 +4,8 @@ import { StoreHeader } from "@/components/store-header";
 import { ProductCard } from "@/components/product-card";
 import { getProducts } from "@/lib/woocommerce";
 import { useCartSync } from "@/hooks/use-cart-sync";
-import { PackageCheck, Search as SearchIcon, X } from "lucide-react";
+import { PackageCheck, ArrowLeft } from "lucide-react";
+import { ProductSearchBar } from "@/components/product-search-bar";
 
 export const Route = createFileRoute("/tienda")({
   loaderDeps: ({ search: { q } }) => ({ q }),
@@ -49,39 +50,28 @@ function Tienda() {
             Descubre nuestra selección completa de alimentos, productos de primera necesidad y
             artículos para tu hogar.
           </p>
-          <form
-            action="/tienda"
-            method="get"
-            className="mx-auto flex max-w-lg items-center gap-2 rounded-full border border-border bg-card px-4 h-12 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
-          >
-            <SearchIcon size={20} className="text-muted-foreground shrink-0" />
-            <input
+          <div className="mx-auto max-w-lg">
+            <ProductSearchBar
               id="tienda-search-input"
-              name="q"
-              defaultValue={q}
-              key={q}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              initialQuery={q}
+              inputClassName="h-12 shadow-xs"
               placeholder="Buscar por nombre, categoría o descripción..."
-              aria-label="Buscar productos"
             />
-            {q && (
+          </div>
+          {q && (
+            <div className="mt-3 flex items-center justify-center gap-3 text-xs sm:text-sm text-muted-foreground">
+              <span>
+                Mostrando resultados para: <span className="font-bold text-foreground">“{q}”</span>
+              </span>
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="p-1 text-muted-foreground hover:text-foreground rounded-full"
-                aria-label="Limpiar búsqueda"
+                className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
               >
-                <X size={16} />
+                <ArrowLeft size={14} />
+                Ver todo el catálogo
               </button>
-            )}
-            <button type="submit" className="hidden">
-              Buscar
-            </button>
-          </form>
-          {q && (
-            <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
-              Mostrando resultados para: <span className="font-bold text-foreground">“{q}”</span>
-            </p>
+            </div>
           )}
         </div>
 

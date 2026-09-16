@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Search, UserRound, X } from "lucide-react";
+import { UserRound, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/button";
 import { CartDrawer } from "@/components/cart-drawer";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { ProductSearchBar } from "@/components/product-search-bar";
 
 export function StoreHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -55,19 +56,11 @@ export function StoreHeader() {
               ),
             )}
           </nav>
-          <form
-            action="/tienda"
-            method="get"
-            className="ml-auto hidden h-10 w-full max-w-xs items-center gap-2 rounded-full bg-muted px-4 md:flex"
-          >
-            <Search size={17} className="text-muted-foreground" />
-            <input
-              name="q"
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              placeholder="Buscar productos..."
-              aria-label="Buscar productos"
-            />
-          </form>
+          <ProductSearchBar
+            className="ml-auto hidden max-w-xs md:block"
+            inputClassName="h-10 bg-muted/70 border-none focus:bg-card focus:ring-1 focus:ring-primary/40 text-xs"
+            placeholder="Buscar productos..."
+          />
           <Button
             variant="icon"
             className="hidden h-10 w-10 p-0 lg:inline-flex ml-auto"
@@ -107,6 +100,12 @@ export function StoreHeader() {
               >
                 <X size={16} />
               </button>
+            </div>
+            <div className="py-2">
+              <ProductSearchBar
+                placeholder="Buscar productos..."
+                onSelectProduct={() => setMenuOpen(false)}
+              />
             </div>
             {links.map(({ href, label, isHash }) =>
               isHash ? (
