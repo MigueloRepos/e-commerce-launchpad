@@ -11,6 +11,7 @@ import { useCartSync } from "@/hooks/use-cart-sync";
 
 export const Route = createFileRoute("/")({
   loader: () => getProducts(12),
+  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q : "" }),
   head: () => ({ meta: [
     { title: "CondiRico | Mercado para tu hogar" },
     { name: "description", content: "Compra alimentos, productos de limpieza y útiles del hogar con entrega rápida y precios competitivos." },
@@ -43,6 +44,8 @@ function SectionTitle({ children }: { children: string }) {
 
 function Home() {
   const products = Route.useLoaderData();
+  const { q } = Route.useSearch();
+  const visibleProducts = q ? products.filter((product) => `${product.node.title} ${product.node.description} ${product.node.productType}`.toLowerCase().includes(q.toLowerCase())) : products;
   useCartSync();
   return <div className="min-h-screen bg-background text-foreground">
     <StoreHeader />
@@ -55,7 +58,7 @@ function Home() {
 
       <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><SectionTitle>Nuestras categorías</SectionTitle><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{categories.map(({ icon: Icon, title, text }) => <article key={title} className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 shadow-soft"><div className="mb-12 flex h-20 items-center justify-center rounded-md bg-muted"><Icon size={44} className="text-primary transition group-hover:scale-110"/></div><h3 className="font-extrabold text-primary">{title}</h3><p className="mt-1 text-sm text-muted-foreground">{text}</p><ChevronRight className="absolute bottom-5 right-5 text-primary"/></article>)}</div></section>
 
-      <section id="productos" className="bg-section py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8"><SectionTitle>Productos destacados</SectionTitle>{products.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">{products.map((product) => <ProductCard key={product.node.id} product={product}/>)}</div> : <div className="rounded-lg border border-dashed border-border bg-background px-6 py-16 text-center"><PackageCheck size={48} className="mx-auto text-primary"/><h3 className="mt-4 text-xl font-extrabold">No products found</h3><p className="mt-2 text-muted-foreground">Nuestro catálogo estará disponible muy pronto.</p></div>}</div></section>
+      <section id="productos" className="bg-section py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8"><SectionTitle>Productos destacados</SectionTitle>{visibleProducts.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">{visibleProducts.map((product) => <ProductCard key={product.node.id} product={product}/>)}</div> : <div className="rounded-lg border border-dashed border-border bg-background px-6 py-16 text-center"><PackageCheck size={48} className="mx-auto text-primary"/><h3 className="mt-4 text-xl font-extrabold">No products found</h3><p className="mt-2 text-muted-foreground">{q ? `No encontramos resultados para “${q}”.` : "Nuestro catálogo estará disponible muy pronto."}</p></div>}</div></section>
 
       <section id="ofertas" className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><div className="relative isolate min-h-80 overflow-hidden rounded-xl"><img src={offerImage} width={1600} height={704} loading="lazy" alt="Canasta con alimentos y productos para el hogar" className="absolute inset-0 -z-20 h-full w-full object-cover object-[66%_center]"/><div className="absolute inset-0 -z-10 bg-banner-wash"/><div className="flex min-h-80 max-w-xl flex-col justify-center p-8 sm:p-12"><p className="text-sm font-black uppercase tracking-[0.18em] text-primary">Ofertas especiales</p><h2 className="mt-3 text-4xl font-black sm:text-5xl">Ahorra más en tus compras</h2><p className="mt-4 text-muted-foreground">Los mejores productos, a los mejores precios.</p><Button className="mt-6 w-fit" onClick={() => document.querySelector("#productos")?.scrollIntoView({ behavior: "smooth" })}>Ver ofertas <ChevronRight size={18}/></Button></div></div></section>
 
