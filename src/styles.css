@@ -72,6 +72,7 @@
 @utility bg-banner-wash { background: var(--banner-wash); }
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
 @layer base {
   * { border-color: var(--color-border); }
