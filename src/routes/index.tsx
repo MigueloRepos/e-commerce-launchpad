@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { createFileRoute, Link, defer, Await } from "@tanstack/react-router";
+import { motion, useScroll, useTransform } from "motion/react";
 import { ProductGridSkeleton } from "@/components/product-card-skeleton";
 import {
   BadgeCheck,
@@ -7,13 +9,16 @@ import {
   ChevronRight,
   CreditCard,
   Headphones,
+  Home as HomeIcon,
   Leaf,
   Mail,
   PackageCheck,
   ShieldCheck,
+  ShoppingBasket,
   Sparkles,
   SprayCan,
   Truck,
+  UtensilsCrossed,
 } from "lucide-react";
 import heroImage from "@/assets/grocery-hero.jpg";
 import offerImage from "@/assets/grocery-offer.jpg";
@@ -51,10 +56,30 @@ export const Route = createFileRoute("/")({
 });
 
 const categories = [
-  { icon: PackageCheck, title: "Alimentos Sellados", text: "Conservas, enlatados, granos y más" },
-  { icon: Boxes, title: "Productos de Primera Necesidad", text: "Todo para tu despensa" },
-  { icon: SprayCan, title: "Limpieza del Hogar", text: "Higiene y frescura para tu hogar" },
-  { icon: Sparkles, title: "Útiles del Hogar", text: "Prácticos, duraderos, esenciales" },
+  {
+    icon: UtensilsCrossed,
+    title: "Alimentos Sellados",
+    text: "Conservas, enlatados, granos y más",
+    query: "alimentos",
+  },
+  {
+    icon: ShoppingBasket,
+    title: "Productos de Primera Necesidad",
+    text: "Todo para tu despensa",
+    query: "necesidad",
+  },
+  {
+    icon: SprayCan,
+    title: "Limpieza del Hogar",
+    text: "Higiene y frescura para tu hogar",
+    query: "limpieza",
+  },
+  {
+    icon: HomeIcon,
+    title: "Útiles del Hogar",
+    text: "Prácticos, duraderos, esenciales",
+    query: "hogar",
+  },
 ];
 
 const benefits = [
@@ -80,6 +105,17 @@ function SectionTitle({ children }: { children: string }) {
 function Home() {
   const { deferredProducts } = Route.useLoaderData();
   const { q } = Route.useSearch();
+  const heroRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
   useCartSync();
   const footerLinks = [
@@ -93,38 +129,76 @@ function Home() {
       <StoreHeader />
       <main>
         <section
+          ref={heroRef}
           id="inicio"
           className="relative isolate flex min-h-[590px] items-center overflow-hidden lg:min-h-[640px]"
         >
-          <img
-            src={heroImage}
-            width={1600}
-            height={912}
-            alt="Bolsa de mercado con alimentos frescos y productos del hogar"
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center]"
-          />
+          {/* Parallax background image */}
+          <motion.div
+            style={{ y: backgroundY, scale: backgroundScale }}
+            className="absolute -inset-x-0 -top-[15%] -bottom-[15%] -z-20 will-change-transform"
+          >
+            <img
+              src={heroImage}
+              width={1600}
+              height={912}
+              alt="Bolsa de mercado con alimentos frescos y productos del hogar"
+              className="h-full w-full object-cover object-[68%_center]"
+            />
+          </motion.div>
           <div className="absolute inset-0 -z-10 bg-hero-wash" />
-          <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-16 lg:px-8">
+
+          {/* Parallax and animated hero text content */}
+          <motion.div
+            style={{ y: contentY, opacity: contentOpacity }}
+            className="mx-auto w-full max-w-7xl px-5 pb-20 pt-16 lg:px-8"
+          >
             <div className="max-w-2xl">
-              <p className="mb-5 text-sm font-extrabold uppercase tracking-[0.18em] text-primary">
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-5 text-sm font-extrabold uppercase tracking-[0.18em] text-primary"
+              >
                 Calidad · Variedad · Confianza
-              </p>
-              <h1 className="max-w-xl text-5xl font-black leading-[1.02] sm:text-6xl lg:text-7xl">
+              </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="max-w-xl text-5xl font-black leading-[1.02] sm:text-6xl lg:text-7xl"
+              >
                 Todo lo que necesitas en <span className="text-highlight">un solo lugar</span>
-              </h1>
-              <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg"
+              >
                 Alimentos sellados, productos de primera necesidad y útiles del hogar, con la mejor
                 calidad y precios que se ajustan a ti.
-              </p>
-              <Button
-                className="mt-8"
-                onClick={() =>
-                  document.querySelector("#productos")?.scrollIntoView({ behavior: "smooth" })
-                }
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
-                Comprar ahora <ChevronRight size={18} />
-              </Button>
-              <div className="mt-10 grid max-w-xl grid-cols-3 gap-3 text-xs font-bold sm:text-sm">
+                <Button
+                  className="mt-8 shadow-sm hover:shadow-md transition-shadow"
+                  onClick={() =>
+                    document.querySelector("#productos")?.scrollIntoView({ behavior: "smooth" })
+                  }
+                >
+                  Comprar ahora <ChevronRight size={18} />
+                </Button>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-10 grid max-w-xl grid-cols-3 gap-3 text-xs font-bold sm:text-sm"
+              >
                 <span className="flex items-center gap-2">
                   <Bike className="text-primary" />
                   Envíos rápidos
@@ -137,26 +211,42 @@ function Home() {
                   <CreditCard className="text-primary" />
                   Pagos seguros
                 </span>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <SectionTitle>Nuestras categorías</SectionTitle>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map(({ icon: Icon, title, text }) => (
-              <article
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.map(({ icon: Icon, title, text, query }) => (
+              <Link
                 key={title}
-                className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 shadow-soft"
+                to="/tienda"
+                search={{ q: query }}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md cursor-pointer"
+                aria-label={`Ver categoría ${title}`}
               >
-                <div className="mb-12 flex h-20 items-center justify-center rounded-md bg-muted">
-                  <Icon size={44} className="text-primary transition group-hover:scale-110" />
+                <div>
+                  <div className="mb-6 flex h-20 items-center justify-center rounded-xl bg-primary-soft transition-colors group-hover:bg-primary/15">
+                    <Icon
+                      size={40}
+                      className="text-primary transition-transform duration-200 group-hover:scale-110"
+                    />
+                  </div>
+                  <h3 className="font-extrabold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
                 </div>
-                <h3 className="font-extrabold text-primary">{title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{text}</p>
-                <ChevronRight className="absolute bottom-5 right-5 text-primary" />
-              </article>
+                <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-primary">
+                  <span>Ver productos</span>
+                  <ChevronRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </div>
+              </Link>
             ))}
           </div>
         </section>
